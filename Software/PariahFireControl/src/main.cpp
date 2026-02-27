@@ -117,13 +117,14 @@ void sendinput(bool debug) // Interpret desired throttle value as an ESC input c
   {
     filteredthrot = map(throt, 0, 1000, 51, 1000);
   }
-  if (firestate!=idle&&firestatetime()<100 && debug)
+   int inputvalue = abs(filteredthrot) + directionSuffix;
+  if ( debug)
   {
     //Serial.print((String)firestate);
     Serial.print(",");
     Serial.print(firestatetime());
     Serial.print(",");
-    Serial.print(filteredthrot);
+    Serial.print(inputvalue);
     Serial.print(",");
     Serial.print(rawrpm);
     Serial.print(",");
@@ -133,7 +134,7 @@ void sendinput(bool debug) // Interpret desired throttle value as an ESC input c
     
   }
 
-  int inputvalue = abs(filteredthrot) + directionSuffix;
+ 
   esc->sendThrottle(inputvalue);
 }
 
@@ -156,13 +157,14 @@ int PID() // does some math to return what our ESC's throttle value should be ba
 {
   int error = (int)rpm - targetRPM; // Checking how far we are from rpm target
   int ssoutput = map(targetRPM, 0, 20000, 0, 1000);
-  int rawinput = 0.15 * error; //+0.001*accel;
+  int rawinput = 0.22 * error; //+0.001*accel;
   // integral += error;
   int output = 0;
   prevoutput = output;
   output = max(1, min(1000, -rawinput + ssoutput));
+  //output = max(1, min(1000,  ssoutput));
   // output =  alphathrot*output+(1-alphathrot)*prevoutput;
-  output = min(output, map(rpm, 0, 10000, 800, 1000));
+  output = min(output, map(rpm, 0, 10000, 80, 1000));
   return output;
   // return output;
 }
@@ -215,10 +217,20 @@ void loop()
   if (firestate == test)
   {
     firestate = idle;
-    if (!digitalRead(TRIG_PIN))
+    if(!digitalRead(BOLT_HANDLE_PIN))
+    {
+        throt = 50;
+      
+    }
+    else if (!digitalRead(TRIG_PIN))
     {
 
-      throt = -45;
+      throt = map(rpm, 0, 20000, 100, 1000);
+        Serial.print(",");
+    Serial.print(firestatetime());
+    Serial.print(",");
+    Serial.println(rawrpm);
+
     }
     else
     {
@@ -226,6 +238,8 @@ void loop()
       throt = 0;
       cyclestart = millis();
     }
+
+    
   }
 
   else if (firestate == idle) // if we're at idle send 0 throttle and reset some variables
@@ -255,7 +269,7 @@ void loop()
 
   else if (firestate == kickstart)
   {
-  /*    Serial.print("ks");
+      Serial.print("ks");
    Serial.print(",");
     Serial.print(digitalRead(PLUNGER_LIMIT_PIN));
     Serial.print(",");
@@ -267,11 +281,11 @@ void loop()
     Serial.print(",");
     Serial.print(rpm);
     Serial.print(",");
-    Serial.println(accel);  */
+    Serial.println(accel);  
     if(!digitalRead(PLUNGER_LIMIT_PIN))
     {
       alreadyreturned = true;
-    throt = map(firestatetime(),0,20,80,120);
+    throt = 150;//map(firestatetime(),0,20,80,120);
     }
     else
     {
@@ -288,7 +302,7 @@ void loop()
 
   else if (firestate == yanking)
   {
-  /*  Serial.print("yanking");
+    Serial.print("yanking");
    Serial.print(",");
     Serial.print(digitalRead(PLUNGER_LIMIT_PIN));
     Serial.print(",");
@@ -300,7 +314,7 @@ void loop()
     Serial.print(",");
     Serial.print(rpm);
     Serial.print(",");
-    Serial.println(accel); */ 
+    Serial.println(accel); 
       throt = PID();
       if(rpm>maxrpm)
       {
@@ -368,7 +382,7 @@ void loop()
 
   else if (firestate == retracting)
   {
-    throt = -12; // lower braking value slightly to speed up retraction
+    throt = -30; // lower braking value slightly to speed up retraction
      //Serial.println(firestatetime());
 
     if (!digitalRead(PLUNGER_LIMIT_PIN)) // wait for the plunger to retract
@@ -421,7 +435,7 @@ void loop()
     }
     else
     {
-    throt = -45;
+    throt = -49;
     }
     // smoothedthrot = 1000;
     //prevrpm = 0;
