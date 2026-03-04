@@ -71,6 +71,7 @@ int rawaccel = 0;
 int crashcounter = 0;
 int prevoutput = 0;
 int direction = 1;
+long advancetime = 0;
 float alpha = 0.2;
 float alphaaccel = 0.2;
 float alphathrot = 0.1;
@@ -506,6 +507,8 @@ void loop()
     {
       // should probably add something here in case it times out to handle that? /wt
       boltstate = backward;
+      advancetime = boltstatetime();
+        Serial.println(advancetime);
       brst();
     }
   }
@@ -513,7 +516,9 @@ void loop()
   {
     if (boltstatetime() > 4)
     {
-      int mappedinput = map(boltstatetime(),0,20,1450,1150);
+      long ramptime = map(advancetime,40,55,15,60);
+      ramptime = min(ramptime,60);
+      int mappedinput = map(boltstatetime(),0,ramptime,1400+ramptime*2,1150+ramptime);
     boltthrot = max(1150,mappedinput);
     }
 
@@ -635,6 +640,9 @@ void loop1()
     display.println("RPM:");
     display.setCursor(18, 98);
     display.print(maxrpm);
+
+    display.setCursor(18, 112);
+    display.print(advancetime);
     //display.print(analogRead(28));
     display.display();
   }
