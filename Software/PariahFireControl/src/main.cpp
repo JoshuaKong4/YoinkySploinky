@@ -513,8 +513,8 @@ void loop()
   {
     if (boltstatetime() > 4)
     {
-      int mappedinput = map(boltstatetime(),0,12,1350,1100);
-    boltthrot = max(100,mappedinput);
+      int mappedinput = map(boltstatetime(),0,20,1350,1100);
+    boltthrot = max(1100,mappedinput);
     }
 
     if (boltstatetime() > boltRetractTime)
@@ -525,7 +525,7 @@ void loop()
   }
   else if (boltstate == backwardhold) // apply low power for a bit to prevent bolt from bouncing forward
   {
-    boltthrot = 1250;
+    boltthrot = 1100;
     if (boltstatetime() > 120) // once some time passes let go of the bolt, it'll stay backwards
     {
       boltstate = boltIdle;
