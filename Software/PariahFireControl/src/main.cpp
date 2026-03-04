@@ -500,8 +500,8 @@ void loop()
   }
   else if (boltstate == load) // Move the bolt forward to load a dart
   {
-    int mappedinput = map(boltstatetime(),0,70,130,470);
-    boltthrot = min(470,mappedinput);
+    int mappedinput = map(boltstatetime(),0,70,150,550);
+    boltthrot = min(550,mappedinput);
     if (!digitalRead(BOLT_LIMIT_PIN) || boltstatetime() > 150) // check if the bolt is hitting the limit switch or timed out //Edited to use defined variable /wt
     {
       // should probably add something here in case it times out to handle that? /wt
@@ -513,8 +513,8 @@ void loop()
   {
     if (boltstatetime() > 4)
     {
-      int mappedinput = map(boltstatetime(),0,20,1350,1100);
-    boltthrot = max(1100,mappedinput);
+      int mappedinput = map(boltstatetime(),0,20,1450,1150);
+    boltthrot = max(1150,mappedinput);
     }
 
     if (boltstatetime() > boltRetractTime)
